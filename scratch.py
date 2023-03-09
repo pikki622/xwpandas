@@ -24,7 +24,7 @@ def time_elapsed(func, *args, **kwargs):
     import time
     start_time = time.time()
     res = func(*args, **kwargs)
-    print("--- %s seconds ---" % round(time.time() - start_time, 2))
+    print(f"--- {round(time.time() - start_time, 2)} seconds ---")
     return res
 #%%
 importlib.reload(xp.core)
