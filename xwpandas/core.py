@@ -17,17 +17,17 @@ class Xwhandler:
 
     def __init__(self, path: Optional[Union[str, Path]], mode: str='r', use_existing_app: bool = True,
                  close_on_exit: bool= True):
-        if mode in ['r', 'w']:
+        if mode in {'r', 'w'}:
             self.mode = mode
         else:
             raise ValueError()
 
         if path is None:
-            if mode == 'w':
+            if mode == 'r':
+                raise ValueError
+            elif mode == 'w':
                 self.path = None
                 self.close_on_exit = False
-            elif mode == 'r':
-                raise ValueError
         else:
             self.path = str(path)
             self.close_on_exit = close_on_exit
@@ -101,11 +101,10 @@ def read(path: Union[str, Path], sheets: Union[int, str, Iterable[Union[int, str
         for sheet in sheets_iterable:
             xl_range = w.wb.sheets[sheet].range('A1').expand().options(DataFrame)
             res[sheet] = xl_range.value
-    if len(res) == 1:
-        for df in res.values():
-            return df
-    else:
+    if len(res) != 1:
         return res
+    for df in res.values():
+        return df
 
 
 def check_dataframe(df:Union[DataFrame, Series]) -> DataFrame:
@@ -189,8 +188,8 @@ def _df_toxlwings_csv(df: Union[DataFrame, Series], path: Optional[Union[str, Pa
         # add querytable
         try:
             t = activesheet.api.QueryTables.Add(
-                Connection='TEXT;{}'.format(temp_csv_path),
-                Destination=activesheet.range(target_range.address).api
+                Connection=f'TEXT;{temp_csv_path}',
+                Destination=activesheet.range(target_range.address).api,
             )
             t.Name = "querytable_from_xwpandas"
             t.FieldNames = False
